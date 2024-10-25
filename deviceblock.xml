@@ -1,0 +1,12 @@
+<!-- Modify this block to add devices -->
+    <device id="4N3QMWV-YBHCRTI-7WS4S3C-6TPUOQQ-S4A5PJW-JO4KWDQ-E6WOUI3-HXKCGAH" name="vm02" compression="metadata" introducer="false" skipIntroductionRemovals="false" introducedBy="">
+        <address>dynamic</address>
+        <paused>false</paused>
+        <autoAcceptFolders>false</autoAcceptFolders>
+        <maxSendKbps>0</maxSendKbps>
+        <maxRecvKbps>0</maxRecvKbps>
+        <maxRequestKiB>0</maxRequestKiB>
+        <untrusted>false</untrusted>
+        <remoteGUIPort>0</remoteGUIPort>
+        <numConnections>0</numConnections>
+    </device>
