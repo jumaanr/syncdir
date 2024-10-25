@@ -210,3 +210,167 @@ Based on the analysis, **Syncthing** is the most suitable solution for the given
 
 ---
 
+## 4. Environment and Provisioning
+
+### Testing Environment
+
+The testing environment consists of two Ubuntu Servers running Ubuntu 22.04 LTS, connected to the same network:
+Default GW: 10.0.0.1 , DNS: 8.8.8.8
+
+| Hostname | IP Address     |
+|----------|----------------|
+| vm01     | 10.0.0.100/24 |
+| vm02     | 10.0.0.101/24 |
+
+
+## Provisioning
+
+The following steps outline the setup and provisioning process for both servers (`vm01` and `vm02`).
+
+
+### 1. Initial Configuration on Both Servers
+
+```bash
+# Update and upgrade packages
+sudo apt update
+sudo apt list --upgradable
+sudo apt upgrade
+
+# Install vim and set default editor
+sudo apt install vim
+sudo update-alternatives --config editor
+
+# Set hostname to localhost for initial setup
+sudo hostnamectl set-hostname localhost
+
+# Configure sudo privileges for devops user
+sudo visudo
+# Add the following line:
+# devops ALL=(ALL) NOPASSWD:ALL
+
+# Install net-tools and reboot
+sudo apt install net-tools
+sudo systemctl reboot
+```
+
+### 2. Network Configuration
+
+**For `vm01` Network Provisioning:**
+
+```bash
+# Check network connections
+sudo nmcli con show
+
+# Configure static IP for vm01
+sudo nmcli connection modify "Wired connection 1" \
+  ipv4.addresses 10.0.0.100/24 \
+  ipv4.gateway 10.0.0.1 \
+  ipv4.dns 8.8.8.8 \
+  ipv4.method manual
+
+# Enable autoconnect and apply changes
+sudo nmcli connection modify "Wired connection 1" connection.autoconnect yes
+sudo nmcli connection down "Wired connection 1"
+sudo nmcli connection up "Wired connection 1"
+```
+
+**For `vm02` Network Provisioning:**
+
+```bash
+# Configure static IP for vm02
+sudo nmcli connection modify "Wired connection 1" \
+  ipv4.addresses 10.0.0.101/24 \
+  ipv4.gateway 10.0.0.1 \
+  ipv4.dns 8.8.8.8 \
+  ipv4.method manual
+
+# Enable autoconnect and apply changes
+sudo nmcli connection modify "Wired connection 1" connection.autoconnect yes
+sudo nmcli connection down "Wired connection 1"
+sudo nmcli connection up "Wired connection 1"
+```
+
+### 3. Hostname Configuration
+
+**Set Hostnames and Reboot**
+
+On `vm01`:
+```bash
+sudo hostnamectl set-hostname vm01
+sudo systemctl reboot
+```
+
+On `vm02`:
+```bash
+sudo hostnamectl set-hostname vm02
+sudo systemctl reboot
+```
+
+**Update `/etc/hosts` File on Both Servers:**
+
+```bash
+echo "10.0.0.100 vm01" | sudo tee -a /etc/hosts
+echo "10.0.0.101 vm02" | sudo tee -a /etc/hosts
+```
+
+### 4. Firewall Configuration
+
+```bash
+# Allow necessary services through the firewall
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw allow ssh
+
+# Enable and verify firewall status
+sudo ufw enable
+sudo ufw status
+sudo ufw reload
+sudo ufw status verbose
+```
+
+### 5. Connectivity Check
+
+Verify connectivity by pinging each server from the other:
+
+```bash
+ping vm01
+ping vm02
+```
+
+### 6. SSH Configuration
+
+Install and configure SSH on both servers:
+
+```bash
+# Update and install SSH server
+sudo apt update
+sudo apt install openssh-server
+sudo systemctl status ssh
+sudo systemctl start ssh
+sudo systemctl enable ssh
+```
+
+**Generate and Exchange SSH Keys:**
+
+On `vm01`:
+```bash
+ssh-keygen
+ssh-copy-id devops@vm02
+sudo systemctl reboot
+```
+
+On `vm02`:
+```bash
+ssh-keygen
+ssh-copy-id devops@vm01
+sudo systemctl reboot
+```
+
+### 7. Install Curl
+
+```bash
+sudo apt install curl
+```
+This completes the environment setup and provisioning. All configurations ensure network connectivity, user access, and SSH key exchange for secure communication between the two servers.
+
+---
